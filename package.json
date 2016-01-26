@@ -1,0 +1,13 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "description": "Server to add multiplayer to Phaser Senior Project",
+  "main": "server.js",
+  "author": "Joshua Kegley",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.4",
+    "http": "0.0.0",
+    "socketio": "^1.0.0"
+  }
+}

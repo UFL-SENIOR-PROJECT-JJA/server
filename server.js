@@ -1,19 +1,19 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var Player = require('./prefabs/Player');
+
 
 var players = {};
 var numPlayers = 0;
 
 /*
-onMove brings in x, y, dir
-
+Added a Player class - Name, X, Y, Dir, SocketID
 */
 
 app.get('/', function(req, res){
     console.log("GET");
-
-  res.send('<h1>Hello world</h1>');
+    res.send('<h1>Hello world</h1>');
 });
 
 io.on('connection', function(socket){

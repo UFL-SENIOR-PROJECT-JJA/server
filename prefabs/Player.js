@@ -21,15 +21,15 @@ var Player = function (name, startX, startY, startDir, socket) {
     };
 
     var getName = function () {
-        return name
+        return name;
     };
 
-    var setX = function (newX) {
-        x = newX;
+    var setX = function (x) {
+        x = x;
     };
 
-    var setY = function (newY) {
-        y = newY;
+    var setY = function (y) {
+        this.y = y;
     };
 
     var setDir = function (newDir) {
@@ -51,7 +51,7 @@ var Player = function (name, startX, startY, startDir, socket) {
         setDir: setDir,
         setName: setName,
         socket: socket
-    }
-}
+    };
+};
 
 module.exports = Player;

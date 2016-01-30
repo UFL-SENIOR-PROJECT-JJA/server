@@ -70,8 +70,8 @@ io.on('connection', function(socket){
 
 
     socket.on('disconnect', function(){
-        delete players[this.name]
-        console.log(this.name + " dicconnected")
+        delete players[this.name];
+        console.log(this.name + " dicconnected");
         socket.broadcast.emit('onPlayerDisconnect', {
             name: this.name
         });

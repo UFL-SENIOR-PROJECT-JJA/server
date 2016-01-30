@@ -1,14 +1,22 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var Lobby = require('./Lobby');
 var Player = require('./prefabs/Player');
 
 
+//Storing all of the lobbies created
+var lobbies = {};
+var numLobbies = {};
+
+//Storing all of the players
 var players = {};
 var numPlayers = 0;
 
 /*
 Added a Player class - Name, X, Y, Dir, SocketID
+We should start storing the players with key being the SocketID
+and not Player Name.
 */
 
 app.get('/', function(req, res){
@@ -83,5 +91,5 @@ io.on('connection', function(socket){
 });
 
 http.listen(3000, '0.0.0.0', function(){
-  console.log('listening on *:3000');
+    console.log('listening on *:3000');
 });

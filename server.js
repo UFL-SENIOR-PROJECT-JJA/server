@@ -24,6 +24,11 @@ app.get('/', function(req, res){
     res.send('<h1>Hello world</h1>');
 });
 
+app.get('/login', function(req, res){
+    console.log("GET");
+    res.send({success: true});
+});
+
 io.on('connection', function(socket){
     console.log('a user connected');
     //todo, add variables NAME, X, Y, Dir to socket

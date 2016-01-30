@@ -1,11 +1,9 @@
-var Player = function (name, startX, startY, startDir, socket) {
+var Player = function (name, socketID) {
+    console.log("Creating new player with name " + name + " id: " + socketID);
 
-    var name = name;
-    var x = startX;
-    var y = startY;
-    var dir = startDir;
-    //stores the socket id for easy lookup
-    var socket = socket;
+    var x;
+    var y;
+    var dir;
 
   // Getters and setters
     var getX = function () {
@@ -21,15 +19,16 @@ var Player = function (name, startX, startY, startDir, socket) {
     };
 
     var getName = function () {
+        console.log("Trying to get this.name " + name)
         return name;
     };
-
     var setX = function (x) {
+
         x = x;
     };
 
     var setY = function (y) {
-        this.y = y;
+        y = y;
     };
 
     var setDir = function (newDir) {
@@ -50,7 +49,7 @@ var Player = function (name, startX, startY, startDir, socket) {
         setY: setY,
         setDir: setDir,
         setName: setName,
-        socket: socket
+        socketID: socketID
     };
 };
 

@@ -27,63 +27,83 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
     console.log('a user connected');
     //todo, add variables NAME, X, Y, Dir to socket
-    socket.x = 37;
-    socket.y = 270;
-    socket.dir = 1; //0 no change, 1 left, -1 right
-    socket.name = "default";
+    //TODO: Add locations, direction, etc for lobby connection
 
-    socket.on('onLogin', function(name){
+
+    //Login to game, not into lobby(map)
+    socket.on('onLogin', function(name, sendID){
+
+        players[socket.id] = new Player(name, socket.id);
         ++numPlayers;
-        players[name] = socket;
-        socket.name = name;
-        console.log(name + " connected");
-        socket.broadcast.emit('onPlayerConnect', {
+
+        console.log(name + " connected on socket: " + socket.id);
+        console.log(players[socket.id].getName());
+        var data = {
+            id: socket.id,
             name: name,
-            x: socket.x,
-            y: socket.y,
-            dir: socket.dir
-        });
+            x: 37,
+            y: 270,
+            dir: 1
+        };
+        socket.broadcast.emit('onPlayerConnect', data);
+        sendID(data);
     });
 
-    socket.on('requestUsers', function(name) {
-        for(var key in players) {
-            if(players.hasOwnProperty(key)) {
-                if(players[key].name != name) {
-                    console.log(players[key].name + " is being added to " + name + "'s game");
+    socket.on('requestUsers', function(socketID) {
+        for(var player in players) {
+            if(players.hasOwnProperty(player)) {
+                console.log("player: ");
+                console.log(player);
+                console.log(players[socket.id].getX());
+
+                if(players[player].socketID != socketID) {
+                    console.log(players[player].getName() + " is being added to " + players[socketID].getName() + "'s game");
                     socket.emit('onPlayerConnect', {
-                        name: players[key].name,
-                        x: players[key].x,
-                        y: players[key].y,
-                        dir: players[key].dir
+                        name: players[player].getName(),
+                        x: players[player].getX(),
+                        y: players[player].getY(),
+                        dir: players[player].getDir()
                     });
                 }
             }
         }
         var connectionString = "Players Connected: ";
-        for(var key in players) {
-            if(players.hasOwnProperty(key)) {
-                connectionString += " " + players[key].name;
+        console.log(players);
+        for(player in players) {
+            console.log("this is what player is : " + player);
+            if(players.hasOwnProperty(player)) {
+                connectionString += " " + players[player].getName();
             }
         }
         console.log(connectionString);
     });
 
 
+    //when player disconnect, they send a disconnect command
     socket.on('disconnect', function(){
-        delete players[this.name];
-        console.log(this.name + " dicconnected");
-        socket.broadcast.emit('onPlayerDisconnect', {
-            name: this.name
-        });
-        --numPlayers;
+        try {
+            var disconnectingPlayer = players[this.id];
+            console.log("This is a player trying to disconnect");
+            console.log(players[this.id]);
+            console.log( disconnectingPlayer.getName() + " dicconnected");
+            socket.broadcast.emit('onPlayerDisconnect', {
+                id: disconnectingPlayer.socketID,
+                name: disconnectingPlayer.getName()
+            });
+            //remove the player from the servers connected list
+            delete players[this.id];
+            --numPlayers;
+        }catch(e){
+            console.log(e);
+        }
     });
 
     //When player sends move packet, broadcast to channel (ie: this lobby)
     socket.on('onMove', function(data){
-        console.log(data.name + ' moved ');
-        socket.x = data.x;
-        socket.y = data.y;
-        socket.dir = data.dir;
+        console.log(data.name + ' moved');
+        players[socket.id].setX(data.x);
+        players[socket.id].setY(data.y);
+        players[socket.id].setDir(data.dir);
 
         socket.broadcast.emit('onOtherPlayerMove', data);
     });

@@ -1,9 +1,10 @@
-var Player = function (name, socketID) {
-    console.log("Creating new player with name " + name + " id: " + socketID);
-
+var Player = function (pName, pSocketID) {
+    var name = pName;
+    var socketID = pSocketID;
     var x;
     var y;
     var dir;
+    console.log("Creating new player with name " + name + " id: " + socketID);
 
   // Getters and setters
     var getX = function () {
@@ -19,7 +20,7 @@ var Player = function (name, socketID) {
     };
 
     var getName = function () {
-        console.log("Trying to get this.name " + name)
+        console.log("Trying to get this.name " + name);
         return name;
     };
     var setX = function (x) {

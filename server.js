@@ -34,7 +34,6 @@ io.on('connection', function(socket){
     //todo, add variables NAME, X, Y, Dir to socket
     //TODO: Add locations, direction, etc for lobby connection
 
-
     //Login to game, not into lobby(map)
     socket.on('onLogin', function(name, sendID){
 
@@ -83,7 +82,6 @@ io.on('connection', function(socket){
         console.log(connectionString);
     });
 
-
     //when player disconnect, they send a disconnect command
     socket.on('disconnect', function(){
         try {
@@ -113,7 +111,53 @@ io.on('connection', function(socket){
         socket.broadcast.emit('onOtherPlayerMove', data);
     });
 
+    socket.on('createLobby', function(data, sendLobbyID) {
+        //Lobby Name - We need to assign a lobby ID
+        //TODO: Later, we should add ability to select game style, map, and amount of players
+        var lobbyData = createLobby(this, data);
+        sendLobbyID();
+        socket.broadcast.emit('updatedLobbies', getLobbyList());
+        //socket.join(socket.id);
+        console.log("This lobby has been made:" + lobbyData.getName());
+    });
+
+    socket.on('requestForLobbies', function(){
+        console.log('requesting a lobby' + lobbies);
+        socket.emit('updatedLobbies', getLobbyList());
+        //need to return an array of lbby id's not actual lobby objects
+    });
+
+    socket.on('playerLeaveLobby', function(data) {
+        var lobbyID = players[socket.id].getLobby();
+        if(lobbyID === socket.id){
+
+            lobbies[lobbyID].closeLobby();
+        }
+        lobbies[lobbyID].removePlayer(socket.id);
+    });
+
+    socket.on('playerJoinLobby', function(lobbyID) {
+        //data has to be lobby id
+        socket.join(lobbyID);
+        lobbies[lobbyID].joinLobby(players[socket.id]);
+    });
 });
+
+
+function createLobby(playerSocket, data) {
+    lobbies[playerSocket.id] = new Lobby(io, "First Lobby", 1, players[playerSocket.id]);
+    return lobbies[playerSocket.id];
+}
+
+function getLobbyList() {
+    var tempLobbies = [];
+    for(var lobby in lobbies) {
+        if(players.hasOwnProperty(lobby)){
+            tempLobbies.push(lobbies[lobby].getLobbyID());
+        }
+    }
+        return tempLobbies;
+}
 
 http.listen(3000, '0.0.0.0', function(){
     console.log('listening on *:3000');

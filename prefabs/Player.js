@@ -4,6 +4,8 @@ var Player = function (pName, pSocketID) {
     var x;
     var y;
     var dir;
+    //IF lobby ID  = 0, no lobby
+    var lobbyID = 0;
     console.log("Creating new player with name " + name + " id: " + socketID);
 
   // Getters and setters
@@ -40,6 +42,18 @@ var Player = function (pName, pSocketID) {
         name = newName;
     };
 
+    var joinLobby = function(id) {
+        lobbyID = id;
+    };
+
+    var leaveLobby = function() {
+        lobbyID = 0;
+    };
+
+    var getLobby = function() {
+        return lobbyID;
+    };
+
     // Define which variables and methods can be accessed
     return {
         getX: getX,
@@ -50,7 +64,10 @@ var Player = function (pName, pSocketID) {
         setY: setY,
         setDir: setDir,
         setName: setName,
-        socketID: socketID
+        socketID: socketID,
+        joinLobby: joinLobby,
+        leaveLobby: leaveLobby,
+        getLobby: getLobby
     };
 };
 

@@ -6,7 +6,6 @@ var Player = function (pName, pSocketID) {
     var dir;
     //IF lobby ID  = 0, no lobby
     var lobbyID = 0;
-    console.log("Creating new player with name " + name + " id: " + socketID);
 
   // Getters and setters
     var getX = function () {
@@ -22,7 +21,6 @@ var Player = function (pName, pSocketID) {
     };
 
     var getName = function () {
-        console.log("Trying to get this.name " + name);
         return name;
     };
     var setX = function (x) {

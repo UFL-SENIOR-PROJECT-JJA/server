@@ -39,9 +39,6 @@ io.on('connection', function(socket){
 
         players[socket.id] = new Player(name, socket.id);
         ++numPlayers;
-
-        console.log(name + " connected on socket: " + socket.id);
-        console.log(players[socket.id].getName());
         var data = {
             id: socket.id,
             name: name,
@@ -49,20 +46,22 @@ io.on('connection', function(socket){
             y: 270,
             dir: 1
         };
-        socket.broadcast.emit('onPlayerConnect', data);
+        //socket.broadcast.emit('onPlayerConnect', data);
         sendID(data);
     });
 
-    socket.on('requestUsers', function(socketID) {
-        for(var player in players) {
+    socket.on('requestLobbyUsers', function() {
+        var requestingPlayer = players[socket.id];
+        var lobby = lobbies[requestingPlayer.getLobby()];
+        lobby.emitPlayers(socket);
+        /*for(var player in players) {
             if(players.hasOwnProperty(player)) {
-                console.log("player: ");
-                console.log(player);
-                console.log(players[socket.id].getX());
+
 
                 if(players[player].socketID != socketID) {
                     console.log(players[player].getName() + " is being added to " + players[socketID].getName() + "'s game");
                     socket.emit('onPlayerConnect', {
+                        id: players[player].socketID,
                         name: players[player].getName(),
                         x: players[player].getX(),
                         y: players[player].getY(),
@@ -71,10 +70,10 @@ io.on('connection', function(socket){
                 }
             }
         }
+        */
         var connectionString = "Players Connected: ";
         console.log(players);
         for(player in players) {
-            console.log("this is what player is : " + player);
             if(players.hasOwnProperty(player)) {
                 connectionString += " " + players[player].getName();
             }
@@ -97,6 +96,7 @@ io.on('connection', function(socket){
             delete players[this.id];
             --numPlayers;
         }catch(e){
+            console.log("Failed in disconnect method");
             console.log(e);
         }
     });
@@ -117,7 +117,7 @@ io.on('connection', function(socket){
         var lobbyData = createLobby(this, data);
         sendLobbyID();
         socket.broadcast.emit('updatedLobbies', getLobbyList());
-        //socket.join(socket.id);
+        socket.join(socket.id);
         console.log("This lobby has been made:" + lobbyData.getName());
     });
 
@@ -136,16 +136,17 @@ io.on('connection', function(socket){
         lobbies[lobbyID].removePlayer(socket.id);
     });
 
-    socket.on('playerJoinLobby', function(lobbyID) {
+    socket.on('playerJoinLobby', function(lobbyID, joinLobby) {
         //data has to be lobby id
         socket.join(lobbyID);
-        lobbies[lobbyID].joinLobby(players[socket.id]);
+        joinLobby();
+        lobbies[lobbyID].addPlayer(players[socket.id], socket);
     });
 });
 
 
 function createLobby(playerSocket, data) {
-    lobbies[playerSocket.id] = new Lobby(io, "First Lobby", 1, players[playerSocket.id]);
+    lobbies[playerSocket.id] = new Lobby(io, data.name, 1, players[playerSocket.id]);
     return lobbies[playerSocket.id];
 }
 

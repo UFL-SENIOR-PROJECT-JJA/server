@@ -120,7 +120,7 @@ io.on('connection', function(socket){
     socket.on('updatePlayerLives', function(data){
         console.log("modifying lives of : " + data.name + " by: " + data.numLives);
         players[socket.id].modifyLives(data.numLives);
-        data.numLives = players[socket.id].getLives;
+        data.numLives = players[socket.id].getLives();
         //foward live data to client so it can make a client side reflect live changes
         socket.broadcast.emit('onUpdateLives', data);
     });

@@ -111,6 +111,12 @@ io.on('connection', function(socket){
         socket.broadcast.emit('onOtherPlayerMove', data);
     });
 
+    socket.on('onBulletFired', function(data){
+        console.log(data.name + ' fired a bullet');
+        //foward bullet data to client so it can make a client side bullet
+        socket.broadcast.emit('onReceiveBullet', data);
+    });
+
     socket.on('createLobby', function(data, sendLobbyID) {
         //Lobby Name - We need to assign a lobby ID
         //TODO: Later, we should add ability to select game style, map, and amount of players

@@ -111,6 +111,12 @@ io.on('connection', function(socket){
         socket.broadcast.emit('onOtherPlayerMove', data);
     });
 
+    socket.on('removeRemoteBullet', function(data){
+        console.log("removing bullet with ID: " + data.uID);
+        //foward bullet data to client so it can make a client side bullet
+        socket.broadcast.emit('onDeleteBullet', data);
+    });
+
     socket.on('onBulletFired', function(data){
         console.log(data.name + ' fired a bullet');
         //foward bullet data to client so it can make a client side bullet

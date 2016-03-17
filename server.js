@@ -121,7 +121,13 @@ io.on('connection', function(socket){
         //Lobby Name - We need to assign a lobby ID
         //TODO: Later, we should add ability to select game style, map, and amount of players
         var lobbyData = createLobby(this, data);
-        sendLobbyID();
+        sendLobbyID(
+            {
+                lobbyName: players[this.id].getName() + " Lobby",
+                lobbyID: this.id,
+                owner: players[this.id].getName()
+            }
+        );
         socket.broadcast.emit('updatedLobbies', getLobbyList());
         socket.join(socket.id);
         console.log("This lobby has been made:" + lobbyData.getName());

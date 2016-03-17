@@ -4,6 +4,7 @@ var Player = function (pName, pSocketID) {
     var x;
     var y;
     var dir;
+    var lives = 3;
     //IF lobby ID  = 0, no lobby
     var lobbyID = 0;
 
@@ -23,6 +24,15 @@ var Player = function (pName, pSocketID) {
     var getName = function () {
         return name;
     };
+
+    var getLives = function(){
+      return lives;
+    };
+    //didnt call it setLives, b/c its not a real setter
+    var modifyLives = function(livesDifference){
+      lives += livesDifference;
+    };
+
     var setX = function (x) {
 
         x = x;
@@ -60,6 +70,8 @@ var Player = function (pName, pSocketID) {
         getName: getName,
         setX: setX,
         setY: setY,
+        modifyLives: modifyLives,
+        getLives: getLives,
         setDir: setDir,
         setName: setName,
         socketID: socketID,

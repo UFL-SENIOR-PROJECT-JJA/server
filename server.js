@@ -30,14 +30,9 @@ app.get('/login', function(req, res){
 });
 
 io.on('connection', function(socket){
-    console.log('a user connected');
-    //todo, add variables NAME, X, Y, Dir to socket
-    //TODO: Add locations, direction, etc for lobby connection
-
-    //Login to game, not into lobby(map)
     socket.on('onLogin', function(name, sendID){
 
-        players[socket.id] = new Player(name, socket.id);
+        players[socket.id] = new Player(name, socket.id, this);
         ++numPlayers;
         var data = {
             id: socket.id,
@@ -46,45 +41,38 @@ io.on('connection', function(socket){
             y: 270,
             dir: 1
         };
-        //socket.broadcast.emit('onPlayerConnect', data);
+        //callback to client, give them their connection information
         sendID(data);
     });
 
-    socket.on('requestLobbyUsers', function() {
+    socket.on('requestLobbyUsers', function(addPlayers) {
         var requestingPlayer = players[socket.id];
         var lobby = lobbies[requestingPlayer.getLobby()];
-        lobby.emitPlayers(socket);
+        getPlayersPrefabs(this, lobby.getLobbyID(), addPlayers);
 
-        var connectionString = "Players Connected: ";
-        console.log(players);
-        for(player in players) {
-            if(players.hasOwnProperty(player)) {
-                connectionString += " " + players[player].getName();
-            }
-        }
-        console.log(connectionString);
     });
 
     //when player disconnect, they send a disconnect command
     socket.on('disconnect', function(){
         try {
             var disconnectingPlayer = players[this.id];
-            console.log("This is a player trying to disconnect");
-            console.log(players[this.id]);
-            console.log( disconnectingPlayer.getName() + " dicconnected");
+            console.log(players[this.id].getName() + "trying to disconnect");
             var lobbyID = players[socket.id].getLobby();
-            playerLeaveLobby(socket);
-            sendLobbyList(socket, lobbyID);
+            if(lobbyID !== undefined) {
+                        playerLeaveLobby(socket);
+                        sendLobbyList(socket, lobbyID);
+            };
+
             socket.broadcast.emit('onPlayerDisconnect', {
                 id: disconnectingPlayer.socketID,
                 name: disconnectingPlayer.getName()
             });
             //remove the player from the servers connected list
+            console.log( disconnectingPlayer.getName() + " dicconnected");
             delete players[this.id];
             --numPlayers;
         }catch(e){
             console.log("Failed in disconnect method");
-            console.log(e);
         }
     });
 
@@ -157,7 +145,12 @@ io.on('connection', function(socket){
     });
 
     socket.on('lobbyGetPlayers', function(lobbyID) {
-        sendLobbyList(socket, lobbyID)
+        sendLobbyList(this, lobbyID)
+    });
+
+    socket.on('startLobby', function(lobbyID) {
+        console.log("This is the lobbyID sent: " + lobbyID);
+        startLobby(this, lobbyID);
     })
 });
 
@@ -177,17 +170,32 @@ function getLobbyList() {
         return tempLobbies;
 }
 
+
 function sendLobbyList(socket, lobbyID) {
-    io.to(lobbyID).emit('lobbyPlayers', lobbies[lobbyID].emitPlayers(this));
+    console.log("sending the updated lobbyList");
+    console.log(lobbies[lobbyID]);
+    io.to(lobbyID).emit('lobbyPlayers', lobbies[lobbyID].getPlayers(socket));
+}
+
+function getPlayersPrefabs(socket, lobbyID, addPlayers) {
+    console.log("sending playerPrefabs");
+    console.log(lobbies[lobbyID]);
+    addPlayers(lobbies[lobbyID].getPlayers(socket));
+}
+
+function startLobby(socket, lobbyID) {
+    console.log("telling users of lobby to start");
+    lobbies[lobbyID].lobbyStarted = true;
+    io.to(lobbyID).emit('startGame');
 }
 
 function playerLeaveLobby(socket) {
     var lobbyID = players[socket.id].getLobby();
     if(lobbyID === socket.id){
-
         lobbies[lobbyID].closeLobby();
+    }else {
+        lobbies[lobbyID].removePlayer(socket.id);
     }
-    lobbies[lobbyID].removePlayer(socket.id);
 }
 
 http.listen(3000, '0.0.0.0', function(){

@@ -1,6 +1,7 @@
-var Player = function (pName, pSocketID) {
+var Player = function (pName, pSocketID, userSocket) {
     var name = pName;
     var socketID = pSocketID;
+    var socket = userSocket;
     var x;
     var y;
     var dir;
@@ -77,7 +78,8 @@ var Player = function (pName, pSocketID) {
         socketID: socketID,
         joinLobby: joinLobby,
         leaveLobby: leaveLobby,
-        getLobby: getLobby
+        getLobby: getLobby,
+        socket: socket
     };
 };
 

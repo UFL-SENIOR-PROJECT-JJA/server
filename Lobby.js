@@ -9,6 +9,7 @@ var Lobby = function (io, startName, startMapID, startOwner) {
     players[owner] = startOwner; //Storing Owners Player Object
     var numPlayers = 1; //Starting with owner in the game
     var monsters = [];
+    var lobbyStarted = false;
     //stores the socket id for easy lookup
 
 
@@ -41,16 +42,14 @@ var Lobby = function (io, startName, startMapID, startOwner) {
             ++numPlayers;
 
             alertPlayers("playerJoined", newPlayer);
-            //emitPlayers(socket);
         }
 
     };
 
-    var emitPlayers = function(socket) {
+    var getPlayers = function(socket) {
         tempPlayers = []
         for(var player in players) {
             if(players.hasOwnProperty(player)) {
-                console.log("Adding player to my game: " + players[player].getName());
                 tempPlayers.push({
                     id: players[player].socketID,
                     name: players[player].getName(),
@@ -65,8 +64,10 @@ var Lobby = function (io, startName, startMapID, startOwner) {
 
     var removePlayer = function(playerSocketID) {
         if(players[playerSocketID] !== undefined) {
+            //if the player is in the lobby, delete them.
             players[playerSocketID].leaveLobby();
-            io.to(players[playerSocketID]).leave(lobbyID);
+            players[playerSocketID].socket.leave(lobbyID);
+            //io.to(players[playerSocketID]).leave(lobbyID);
             delete players[playerSocketID];
             --numPlayers;
             return true;
@@ -103,6 +104,10 @@ var Lobby = function (io, startName, startMapID, startOwner) {
         return lobbyID;
     }
 
+    var amountOfPlayers = function () {
+        return numPlayers;
+    };
+
 
     // Define which variables and methods can be accessed
     return {
@@ -114,7 +119,9 @@ var Lobby = function (io, startName, startMapID, startOwner) {
         removePlayer: removePlayer,
         closeLobby: closeLobby,
         getLobbyID: getLobbyID,
-        emitPlayers: emitPlayers
+        getPlayers: getPlayers,
+        amountOfPlayers: amountOfPlayers,
+        lobbyStarted: lobbyStarted
     };
 };
 

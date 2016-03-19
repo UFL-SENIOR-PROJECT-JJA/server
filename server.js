@@ -100,8 +100,16 @@ io.on('connection', function(socket){
 
     socket.on('removeRemoteBullet', function(data){
         console.log("removing bullet with ID: " + data.uID);
-        //foward bullet data to client so it can make a client side bullet
+        //foward bullet data to client so it can delete a client side bullet
         socket.broadcast.emit('onDeleteBullet', data);
+    });
+
+    socket.on('updatePlayerLives', function(data){
+        console.log("modifying lives of : " + data.name + " by: " + data.numLives);
+        players[socket.id].modifyLives(data.numLives);
+        data.numLives = players[socket.id].getLives();
+        //foward live data to client so it can make a client side reflect live changes
+        socket.broadcast.emit('onUpdateLives', data);
     });
 
     socket.on('onBulletFired', function(data){

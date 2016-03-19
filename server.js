@@ -54,23 +54,7 @@ io.on('connection', function(socket){
         var requestingPlayer = players[socket.id];
         var lobby = lobbies[requestingPlayer.getLobby()];
         lobby.emitPlayers(socket);
-        /*for(var player in players) {
-            if(players.hasOwnProperty(player)) {
 
-
-                if(players[player].socketID != socketID) {
-                    console.log(players[player].getName() + " is being added to " + players[socketID].getName() + "'s game");
-                    socket.emit('onPlayerConnect', {
-                        id: players[player].socketID,
-                        name: players[player].getName(),
-                        x: players[player].getX(),
-                        y: players[player].getY(),
-                        dir: players[player].getDir()
-                    });
-                }
-            }
-        }
-        */
         var connectionString = "Players Connected: ";
         console.log(players);
         for(player in players) {
@@ -88,6 +72,9 @@ io.on('connection', function(socket){
             console.log("This is a player trying to disconnect");
             console.log(players[this.id]);
             console.log( disconnectingPlayer.getName() + " dicconnected");
+            var lobbyID = players[socket.id].getLobby();
+            playerLeaveLobby(socket);
+            sendLobbyList(socket, lobbyID);
             socket.broadcast.emit('onPlayerDisconnect', {
                 id: disconnectingPlayer.socketID,
                 name: disconnectingPlayer.getName()
@@ -129,7 +116,7 @@ io.on('connection', function(socket){
         var lobbyData = createLobby(this, data);
         sendLobbyID(
             {
-                lobbyName: players[this.id].getName() + " Lobby",
+                lobbyName: players[this.id].getName(),
                 lobbyID: this.id,
                 owner: players[this.id].getName()
             }
@@ -137,6 +124,7 @@ io.on('connection', function(socket){
         socket.broadcast.emit('updatedLobbies', getLobbyList());
         socket.join(socket.id);
         console.log("This lobby has been made:" + lobbyData.getName());
+        sendLobbyList(socket, this.id);
     });
 
     socket.on('requestForLobbies', function(){
@@ -146,25 +134,28 @@ io.on('connection', function(socket){
     });
 
     socket.on('playerLeaveLobby', function(data) {
-        var lobbyID = players[socket.id].getLobby();
-        if(lobbyID === socket.id){
-
-            lobbies[lobbyID].closeLobby();
-        }
-        lobbies[lobbyID].removePlayer(socket.id);
+        playerLeaveLobby(socket);
     });
 
     socket.on('playerJoinLobby', function(lobbyID, joinLobby) {
         //data has to be lobby id
         socket.join(lobbyID);
-        joinLobby();
+        joinLobby({
+            lobbyName: lobbies[lobbyID].getName(),
+            lobbyID: lobbyID,
+            owner: players[lobbies[lobbyID].getOwner()].getName()
+        });
         lobbies[lobbyID].addPlayer(players[socket.id], socket);
     });
+
+    socket.on('lobbyGetPlayers', function(lobbyID) {
+        sendLobbyList(socket, lobbyID)
+    })
 });
 
 
 function createLobby(playerSocket, data) {
-    lobbies[playerSocket.id] = new Lobby(io, data.name, 1, players[playerSocket.id]);
+    lobbies[playerSocket.id] = new Lobby(io, players[playerSocket.id].getName(), 1, players[playerSocket.id]);
     return lobbies[playerSocket.id];
 }
 
@@ -176,6 +167,19 @@ function getLobbyList() {
         }
     }
         return tempLobbies;
+}
+
+function sendLobbyList(socket, lobbyID) {
+    io.to(lobbyID).emit('lobbyPlayers', lobbies[lobbyID].emitPlayers(this));
+}
+
+function playerLeaveLobby(socket) {
+    var lobbyID = players[socket.id].getLobby();
+    if(lobbyID === socket.id){
+
+        lobbies[lobbyID].closeLobby();
+    }
+    lobbies[lobbyID].removePlayer(socket.id);
 }
 
 http.listen(3000, '0.0.0.0', function(){

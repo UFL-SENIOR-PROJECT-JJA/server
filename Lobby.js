@@ -47,10 +47,11 @@ var Lobby = function (io, startName, startMapID, startOwner) {
     };
 
     var emitPlayers = function(socket) {
+        tempPlayers = []
         for(var player in players) {
             if(players.hasOwnProperty(player)) {
                 console.log("Adding player to my game: " + players[player].getName());
-                socket.emit('onPlayerConnect', {
+                tempPlayers.push({
                     id: players[player].socketID,
                     name: players[player].getName(),
                     x: players[player].getX(),
@@ -59,6 +60,7 @@ var Lobby = function (io, startName, startMapID, startOwner) {
                 });
             }
         }
+        return tempPlayers;
     };
 
     var removePlayer = function(playerSocketID) {

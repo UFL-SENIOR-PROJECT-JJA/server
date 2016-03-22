@@ -168,7 +168,11 @@ function getLobbyList() {
     var tempLobbies = [];
     for(var lobby in lobbies) {
         if(players.hasOwnProperty(lobby)){
-            tempLobbies.push(lobbies[lobby].getLobbyID());
+            tempLobbies.push({
+                lobbyName: lobbies[lobby].getName(),
+                lobbyID: lobbies[lobby].getLobbyID(),
+                owner: lobbies[lobby].getOwner()
+            });
         }
     }
         return tempLobbies;

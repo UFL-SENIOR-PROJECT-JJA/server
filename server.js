@@ -83,13 +83,15 @@ io.on('connection', function(socket){
         players[socket.id].setY(data.y);
         players[socket.id].setDir(data.dir);
 
-        socket.broadcast.emit('onOtherPlayerMove', data);
+        //socket.broadcast.emit('onOtherPlayerMove', data);  this would be to everyone
+        socket.broadcast.to(players[socket.id].getLobby()).emit('onOtherPlayerMove', data);
     });
 
     socket.on('removeRemoteBullet', function(data){
         console.log("removing bullet with ID: " + data.uID);
         //foward bullet data to client so it can delete a client side bullet
-        socket.broadcast.emit('onDeleteBullet', data);
+        //socket.broadcast.emit('onDeleteBullet', data);
+        socket.broadcast.to(players[socket.id].getLobby()).emit('onDeleteBullet', data);
     });
 
     socket.on('updatePlayerLives', function(data){
@@ -97,13 +99,15 @@ io.on('connection', function(socket){
         players[socket.id].modifyLives(data.numLives);
         data.numLives = players[socket.id].getLives();
         //foward live data to client so it can make a client side reflect live changes
-        socket.broadcast.emit('onUpdateLives', data);
+        //socket.broadcast.emit('onUpdateLives', data);
+        socket.broadcast.to(players[socket.id].getLobby()).emit('onUpdateLives', data);
     });
 
     socket.on('onBulletFired', function(data){
         console.log(data.name + ' fired a bullet');
         //foward bullet data to client so it can make a client side bullet
-        socket.broadcast.emit('onReceiveBullet', data);
+        //socket.broadcast.emit('onReceiveBullet', data);
+        socket.broadcast.to(players[socket.id].getLobby()).emit('onReceiveBullet', data);
     });
 
     socket.on('createLobby', function(data, sendLobbyID) {

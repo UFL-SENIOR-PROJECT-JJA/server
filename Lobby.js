@@ -64,6 +64,7 @@ var Lobby = function (io, startName, startMapID, startOwner) {
 
     var removePlayer = function(playerSocketID) {
         if(players[playerSocketID] !== undefined) {
+            console.log(players[playerSocketID].getName() + " left Lobby");
             //if the player is in the lobby, delete them.
             players[playerSocketID].leaveLobby();
             players[playerSocketID].socket.leave(lobbyID);

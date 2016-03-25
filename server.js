@@ -133,7 +133,8 @@ io.on('connection', function(socket){
         //need to return an array of lbby id's not actual lobby objects
     });
 
-    socket.on('playerLeaveLobby', function(data) {
+    socket.on('playerLeaveLobby', function() {
+        console.log("Request to leave lobby: ");
         playerLeaveLobby(socket);
     });
 
@@ -200,8 +201,11 @@ function startLobby(socket, lobbyID) {
 function playerLeaveLobby(socket) {
     var lobbyID = players[socket.id].getLobby();
     if(lobbyID === socket.id){
+        console.log("Closing lobby: " + lobbyID);
         lobbies[lobbyID].closeLobby();
+        delete lobbies[lobbyID];
     }else {
+        console.log("Removing a Non Lobby Owner");
         lobbies[lobbyID].removePlayer(socket.id);
     }
 }

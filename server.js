@@ -78,7 +78,6 @@ io.on('connection', function(socket){
 
     //When player sends move packet, broadcast to channel (ie: this lobby)
     socket.on('onMove', function(data){
-        console.log(data.name + ' moved');
         players[socket.id].setX(data.x);
         players[socket.id].setY(data.y);
         players[socket.id].setDir(data.dir);
@@ -176,7 +175,8 @@ function getLobbyList() {
             tempLobbies.push({
                 lobbyName: lobbies[lobby].getName(),
                 lobbyID: lobbies[lobby].getLobbyID(),
-                owner: lobbies[lobby].getOwner()
+                owner: lobbies[lobby].getOwner(),
+                started: lobbies[lobby].lobbyStarted
             });
         }
     }
@@ -200,6 +200,9 @@ function startLobby(socket, lobbyID) {
     console.log("telling users of lobby to start");
     lobbies[lobbyID].lobbyStarted = true;
     io.to(lobbyID).emit('startGame');
+    console.log("Updated the lobbies after lobby starte");
+    socket.broadcast.emit('updatedLobbies', getLobbyList());
+
 }
 
 function playerLeaveLobby(socket) {

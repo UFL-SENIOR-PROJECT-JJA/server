@@ -98,6 +98,10 @@ io.on('connection', function(socket){
         console.log("modifying lives of : " + data.name + " by: " + data.numLives);
         players[socket.id].modifyLives(data.numLives);
         data.numLives = players[socket.id].getLives();
+        //if a player is dead, check if the game is over
+        if( players[socket.id].getLives() === 0){
+          lobbies[players[socket.id].getLobby()].checkGameOver();
+        }
         //foward live data to client so it can make a client side reflect live changes
         //socket.broadcast.emit('onUpdateLives', data);
         socket.broadcast.to(players[socket.id].getLobby()).emit('onUpdateLives', data);

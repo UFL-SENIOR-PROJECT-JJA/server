@@ -71,6 +71,8 @@ var Lobby = function (io, startName, startMapID, startOwner) {
             //io.to(players[playerSocketID]).leave(lobbyID);
             delete players[playerSocketID];
             --numPlayers;
+            //if someone leaves we need ot check if the game is over
+            checkGameOver();
             return true;
         }else {
             return false;
@@ -109,6 +111,29 @@ var Lobby = function (io, startName, startMapID, startOwner) {
         return numPlayers;
     };
 
+    var checkGameOver = function(){
+      console.log("checking if a game is over");
+      var numPlayers = 0;
+      var numDead = 0;
+
+      for(var player in players) {
+          if(players.hasOwnProperty(player)) {
+            ++numPlayers;
+            if(players[player].getLives() === 0){
+              ++numDead;
+            }
+          }
+      }
+      if(numDead >= numPlayers-1){
+        //then the game is over I think
+        console.log("game is over");
+      }else{
+        console.log("game is NOT over");
+      }
+      //not sure yet
+
+    }
+
 
     // Define which variables and methods can be accessed
     return {
@@ -122,7 +147,8 @@ var Lobby = function (io, startName, startMapID, startOwner) {
         getLobbyID: getLobbyID,
         getPlayers: getPlayers,
         amountOfPlayers: amountOfPlayers,
-        lobbyStarted: lobbyStarted
+        lobbyStarted: lobbyStarted,
+        checkGameOver: checkGameOver
     };
 };
 

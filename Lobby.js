@@ -1,4 +1,4 @@
-var Lobby = function (io, startName, startMapID, startOwner) {
+var Lobby = function (io, startName, startMapID, startOwner, endGame) {
 
     var name = startName; //lobby name
     var mapID = startMapID; //map gets an ID
@@ -81,8 +81,10 @@ var Lobby = function (io, startName, startMapID, startOwner) {
     };
 
     var closeLobby = function() {
+      console.log("close lobby called");
         for(var player in players) {
             if(players.hasOwnProperty(player)) {
+              console.log("emitting kicked");
                 io.to(players[player].socketID).emit("kicked");
             }
         }
@@ -127,6 +129,8 @@ var Lobby = function (io, startName, startMapID, startOwner) {
       if(numDead >= numPlayers-1){
         //then the game is over I think
         console.log("game is over");
+        io.to(lobbyID).emit("gameOver");
+        endGame(lobbyID);
       }else{
         console.log("game is NOT over");
       }

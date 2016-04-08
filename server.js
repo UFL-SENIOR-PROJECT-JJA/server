@@ -147,6 +147,10 @@ io.on('connection', function(socket){
             }
         }
     })
+    socket.on('kicked', function(){
+      console.log("kicking players");
+      playerLeaveLobby(socket);
+    });
 
     socket.on('playerLeaveLobby', function() {
         console.log("Request to leave lobby: ");
@@ -172,11 +176,12 @@ io.on('connection', function(socket){
         console.log("This is the lobbyID sent: " + lobbyID);
         startLobby(this, lobbyID);
     })
+
 });
 
 
 function createLobby(playerSocket, data) {
-    lobbies[playerSocket.id] = new Lobby(io, players[playerSocket.id].getName(), 1, players[playerSocket.id]);
+    lobbies[playerSocket.id] = new Lobby(io, players[playerSocket.id].getName(), 1, players[playerSocket.id], endGame);
     return lobbies[playerSocket.id];
 }
 
@@ -208,6 +213,14 @@ function getLobbyInfo(lobby) {
     }
 }
 
+
+function endGame(lobbyID){
+      //console.log("This is the lobbyID sent: " + lobbyID);
+      //io.to(lobbyID).emit('gameOver');
+      console.log("Killing lobby: " + lobbyID);
+      lobbies[lobbyID].closeLobby();
+      delete lobbies[lobbyID];
+}
 
 
 function sendLobbyList(socket, lobbyID) {

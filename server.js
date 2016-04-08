@@ -136,6 +136,18 @@ io.on('connection', function(socket){
         //need to return an array of lbby id's not actual lobby objects
     });
 
+    socket.on('requestForLobbyByOwner', function(owner, startLobby) {
+        console.log("Trying to start instance of lobby of: " + owner);
+        for(var player in players) {
+            if(players.hasOwnProperty(player)){
+                if(players[player].getName() === owner) {
+                    startLobby(getLobbyInfo(players[player].getLobby()));
+                    return;
+                }
+            }
+        }
+    })
+
     socket.on('playerLeaveLobby', function() {
         console.log("Request to leave lobby: ");
         playerLeaveLobby(socket);
@@ -182,6 +194,20 @@ function getLobbyList() {
     }
         return tempLobbies;
 }
+
+function getLobbyInfo(lobby) {
+    if(lobbies[lobby]){
+        return {
+                    lobbyName: lobbies[lobby].getName(),
+                    lobbyID: lobbies[lobby].getLobbyID(),
+                    owner: lobbies[lobby].getOwner(),
+                    started: lobbies[lobby].lobbyStarted
+        };
+    }else {
+        return null;
+    }
+}
+
 
 
 function sendLobbyList(socket, lobbyID) {

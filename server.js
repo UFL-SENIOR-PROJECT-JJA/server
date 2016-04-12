@@ -85,6 +85,11 @@ io.on('connection', function(socket){
         //socket.broadcast.emit('onOtherPlayerMove', data);  this would be to everyone
         socket.broadcast.to(players[socket.id].getLobby()).emit('onOtherPlayerMove', data);
     });
+	
+	socket.on('onChat', function(data){
+		data.message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        socket.broadcast.to(players[socket.id].getLobby()).emit('onOtherPlayerChat', data);
+    });
 
     socket.on('removeRemoteBullet', function(data){
         console.log("removing bullet with ID: " + data.uID);
